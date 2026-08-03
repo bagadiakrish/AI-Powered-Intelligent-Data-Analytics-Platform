@@ -1,0 +1,45 @@
+# -----------------------
+# Python
+# -----------------------
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/db.sqlite3
+
+# Environment variables
+backend/.env
+frontend/.env
+
+# -----------------------
+# Node
+# -----------------------
+frontend/node_modules/
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Build files
+frontend/dist/
+frontend/build/
+
+# Python cache
+*.py[cod]
+*.pyo
+*.pyd
+
+# Coverage
+.coverage
+htmlcov/
+
+# Pytest
+.pytest_cache/
+
+# Misc
+.idea/
