@@ -4,7 +4,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from datasets.models import Dataset
-from .services import AnalyticsService
+from .services import (
+    AnalyticsService,
+    VisualizationService,
+)
+
+from .serializers import VisualizationSerializer
 
 
 class BaseDatasetAPIView(APIView):
@@ -175,3 +180,39 @@ class DatasetCorrelationAPIView(BaseDatasetAPIView):
         return Response(
             AnalyticsService.get_correlation(dataset)
         )
+
+class DatasetVisualizationAPIView(BaseDatasetAPIView):
+
+    def post(self, request, dataset_id):
+
+        dataset = self.get_dataset(dataset_id, request.user)
+
+        if not dataset:
+            return Response(
+                {"error": "Dataset not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = VisualizationSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        try:
+
+            result = VisualizationService.generate_chart(
+                dataset,
+                serializer.validated_data,
+            )
+
+            return Response(result)
+
+        except ValueError as e:
+
+            return Response(
+                {
+                    "error": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )

@@ -1,5 +1,5 @@
 from django.urls import path
-
+from .views import DatasetVisualizationAPIView
 from .views import (
     DatasetOverviewAPIView,
     DatasetSummaryAPIView,
@@ -60,4 +60,9 @@ urlpatterns = [
         DatasetCorrelationAPIView.as_view(),
         name="dataset-correlation",
     ),
+    path(
+    "<int:dataset_id>/visualize/",
+    DatasetVisualizationAPIView.as_view(),
+    name="dataset-visualization",
+),
 ]

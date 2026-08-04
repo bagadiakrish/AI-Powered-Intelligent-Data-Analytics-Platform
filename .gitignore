@@ -43,3 +43,7 @@ htmlcov/
 
 # Misc
 .idea/
+media/
+.postman/
+postman/
+.env

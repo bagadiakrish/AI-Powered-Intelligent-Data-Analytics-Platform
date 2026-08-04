@@ -183,3 +183,43 @@ class VisualizationService:
         )
 
         return cls.save_chart()
+    @classmethod
+    def generate_chart(cls, dataset, data):
+
+        chart_type = data["chart_type"]
+
+        if chart_type == "heatmap":
+            url = cls.heatmap(dataset)
+
+        elif chart_type == "scatter":
+            url = cls.scatter_chart(
+                dataset,
+                data["x_column"],
+                data["y_column"],
+            )
+
+        else:
+
+            column = data["column"]
+
+            if chart_type == "bar":
+                url = cls.bar_chart(dataset, column)
+
+            elif chart_type == "pie":
+                url = cls.pie_chart(dataset, column)
+
+            elif chart_type == "line":
+                url = cls.line_chart(dataset, column)
+
+            elif chart_type == "histogram":
+                url = cls.histogram(dataset, column)
+
+            elif chart_type == "box":
+                url = cls.box_plot(dataset, column)
+
+            else:
+                raise ValueError("Unsupported chart type.")
+
+        return {
+            "chart_url": url
+        }
