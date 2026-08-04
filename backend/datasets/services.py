@@ -38,4 +38,4 @@ class DatasetService:
             "rows": len(dataframe),
             "columns": len(dataframe.columns),
             "column_names": list(dataframe.columns),
-        }
+        }   
