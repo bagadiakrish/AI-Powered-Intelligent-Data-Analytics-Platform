@@ -1,0 +1,295 @@
+.dataset-page {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.dataset-workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.workspace-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 25px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.workspace-card h3 {
+  font-size: 18px;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.file-drop-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.file-drop-zone:hover {
+  border-color: var(--primary);
+  background: var(--surface-hover);
+}
+
+.file-drop-zone input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+}
+
+.upload-icon {
+  font-size: 40px;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.file-selected-name {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.upload-form label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.upload-form input[type="text"] {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text);
+  outline: none;
+}
+
+.upload-submit-btn {
+  background: var(--accent-gradient);
+  color: var(--text-inverse);
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-primary);
+  transition: var(--transition);
+}
+
+.upload-submit-btn:hover:not(:disabled) {
+  background: var(--accent-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary), var(--shadow-glow);
+}
+
+.datasets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 310px;
+  overflow-y: auto;
+}
+
+.dataset-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dataset-item-row:hover,
+.dataset-item-row.active {
+  border-color: var(--primary);
+  background: var(--surface-hover);
+}
+
+.dataset-item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-icon {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.dataset-item-info div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dataset-item-info strong {
+  font-size: var(--font-size-sm);
+  color: var(--text);
+}
+
+.dataset-item-info span {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.dataset-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.download-action-btn,
+.delete-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.download-action-btn {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.download-action-btn:hover {
+  background: var(--success);
+  color: #fff;
+}
+
+.delete-action-btn {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.delete-action-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.dataset-processing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.card-header-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  font-size: 22px;
+  color: var(--primary);
+}
+
+.cleaning-card p.description {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.cleaning-toggles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.checkbox-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.checkbox-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.clean-btn {
+  background: var(--primary);
+  color: var(--text-inverse);
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+  transition: var(--transition);
+}
+
+.clean-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.preview-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.dataset-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataset-preview-table th {
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+
+.dataset-preview-table td {
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.dataset-preview-table tr:hover td {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+@media (max-width: 1024px) {
+  .dataset-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .cleaning-toggles-grid {
+    grid-template-columns: 1fr;
+  }
+}

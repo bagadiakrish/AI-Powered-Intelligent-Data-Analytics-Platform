@@ -21,14 +21,9 @@ urlpatterns = [
         include("analytics.urls"),
     ),
     path(
-    "api/ml/",
-    include("ml_engine.urls"),
+        "api/ml/",
+        include("ml_engine.urls"),
     ),
-    path(
-    "api/ml/",
-    include("ml_engine.urls"),
-    ),
-    
 ]
 
 if settings.DEBUG:

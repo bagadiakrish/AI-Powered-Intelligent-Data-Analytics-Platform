@@ -1,218 +1,62 @@
+import pandas as pd
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from datasets.models import Dataset
-from .services import (
-    AnalyticsService,
-    VisualizationService,
-)
+from .services import AnalyticsService
 
-from .serializers import VisualizationSerializer
-
-
-class BaseDatasetAPIView(APIView):
-
+class DatasetOverviewView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_dataset(self, dataset_id, user):
-
+    def get(self, request, dataset_id):
+        dataset = get_object_or_404(Dataset, id=dataset_id, user=request.user)
         try:
-            return Dataset.objects.get(
-                id=dataset_id,
-                uploaded_by=user,
-            )
+            if dataset.file.path.endswith(".csv"):
+                df = pd.read_csv(dataset.file.path)
+            else:
+                df = pd.read_excel(dataset.file.path)
 
-        except Dataset.DoesNotExist:
-            return None
+            overview = AnalyticsService.get_overview(df)
+            return Response(overview, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": f"Failed to compute overview: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-class DatasetOverviewAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_overview(dataset)
-        )
-
-
-class DatasetSummaryAPIView(BaseDatasetAPIView):
+class DatasetCorrelationView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_summary(dataset)
-        )
-
-
-class DatasetPreviewAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_preview(dataset)
-        )
-
-
-class DatasetColumnStatisticsAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_column_statistics(dataset)
-        )
-
-
-class DatasetValueCountsAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        column = request.query_params.get("column")
-
-        if not column:
-            return Response(
-                {"error": "column query parameter is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        dataset = get_object_or_404(Dataset, id=dataset_id, user=request.user)
         try:
-            return Response(
-                AnalyticsService.get_value_counts(
-                    dataset,
-                    column,
-                )
-            )
+            if dataset.file.path.endswith(".csv"):
+                df = pd.read_csv(dataset.file.path)
+            else:
+                df = pd.read_excel(dataset.file.path)
 
-        except ValueError as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            correlation = AnalyticsService.get_correlation(df)
+            return Response(correlation, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": f"Failed to compute correlation: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-class DatasetMissingValuesAPIView(BaseDatasetAPIView):
+class DatasetCrosstabView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, dataset_id):
+        col1 = request.query_params.get("col1")
+        col2 = request.query_params.get("col2")
 
-        dataset = self.get_dataset(dataset_id, request.user)
+        if not col1 or not col2:
+            return Response({"detail": "Parameters col1 and col2 are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_missing_values(dataset)
-        )
-
-
-class DatasetDuplicateReportAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_duplicate_report(dataset)
-        )
-
-
-class DatasetCorrelationAPIView(BaseDatasetAPIView):
-
-    def get(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        return Response(
-            AnalyticsService.get_correlation(dataset)
-        )
-
-class DatasetVisualizationAPIView(BaseDatasetAPIView):
-
-    def post(self, request, dataset_id):
-
-        dataset = self.get_dataset(dataset_id, request.user)
-
-        if not dataset:
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        serializer = VisualizationSerializer(
-            data=request.data
-        )
-
-        serializer.is_valid(raise_exception=True)
-
+        dataset = get_object_or_404(Dataset, id=dataset_id, user=request.user)
         try:
+            if dataset.file.path.endswith(".csv"):
+                df = pd.read_csv(dataset.file.path)
+            else:
+                df = pd.read_excel(dataset.file.path)
 
-            result = VisualizationService.generate_chart(
-                dataset,
-                serializer.validated_data,
-            )
-
-            return Response(result)
-
-        except ValueError as e:
-
-            return Response(
-                {
-                    "error": str(e)
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            crosstab = AnalyticsService.get_crosstab(df, col1, col2)
+            return Response(crosstab, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": f"Failed to compute crosstab: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)

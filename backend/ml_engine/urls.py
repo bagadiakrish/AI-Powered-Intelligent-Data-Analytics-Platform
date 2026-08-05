@@ -1,27 +1,8 @@
 from django.urls import path
-from .views import TrainModelAPIView, TrainedModelListAPIView,TrainedModelDetailAPIView,PredictAPIView
-
+from .views import TrainModelView, TrainedModelListView, TrainedModelDetailDeleteView
 
 urlpatterns = [
-    path(
-        "train/",
-        TrainModelAPIView.as_view(),
-        name="train-model",
-    ),
-    path(
-        "models/",
-        TrainedModelListAPIView.as_view(),
-        name="trained-model-list",
-    ),
-    path(
-    "models/<int:pk>/",
-    TrainedModelDetailAPIView.as_view(),
-    name="trained-model-detail",
-    
-    ),
-    path(
-        "predict/",
-        PredictAPIView.as_view(),
-        name="predict",
-    ),
+    path("train/", TrainModelView.as_view(), name="ml-train"),
+    path("models/", TrainedModelListView.as_view(), name="ml-models"),
+    path("models/<int:pk>/", TrainedModelDetailDeleteView.as_view(), name="ml-model-detail-delete"),
 ]

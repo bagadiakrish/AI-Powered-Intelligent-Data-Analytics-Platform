@@ -1,0 +1,117 @@
+.reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.reports-layout-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 25px;
+  box-shadow: var(--shadow-sm);
+}
+
+.reports-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.reports-count {
+  background: var(--primary-soft);
+  color: var(--primary-light);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reports-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th {
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+
+.reports-table td {
+  padding: 14px 18px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.reports-table tr:hover td {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.report-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdf-icon {
+  font-size: 18px;
+  color: var(--danger);
+}
+
+.reports-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.reports-actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  color: #fff;
+}
+
+.reports-actions .preview-btn {
+  background: var(--primary);
+}
+
+.reports-actions .download-btn {
+  background: var(--success);
+}
+
+.reports-actions .delete-btn {
+  background: var(--danger);
+}
+
+.reports-actions button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.empty-reports-state {
+  padding: 50px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}

@@ -1,0 +1,249 @@
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.analytics-controls {
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.analytics-controls label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.analytics-controls select {
+  padding: 8px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font-size: var(--font-size-sm);
+  outline: none;
+}
+
+.analytics-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.analytics-layout-grid .full-width {
+  grid-column: span 2;
+}
+
+.analytics-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 25px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 380px;
+}
+
+.summary-banner {
+  background: var(--primary-soft);
+  color: var(--primary-light);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  width: fit-content;
+}
+
+.schema-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.schema-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schema-table th {
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+
+.schema-table td {
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.schema-table tr:hover td {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.heatmap-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 3px;
+  min-width: 480px;
+}
+
+.heatmap-header-cell,
+.heatmap-row-header-cell {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px;
+}
+
+.heatmap-row-header-cell {
+  justify-content: flex-end;
+  font-size: 11px;
+  padding-right: 10px;
+}
+
+.heatmap-cell {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crosstab-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.crosstab-controls label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.crosstab-controls select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  outline: none;
+}
+
+.compute-crosstab-btn {
+  background: var(--primary);
+  color: var(--text-inverse);
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+  transition: var(--transition);
+}
+
+.compute-crosstab-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.crosstab-result-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.crosstab-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.crosstab-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.crosstab-table th {
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+
+.crosstab-table td {
+  padding: 10px 14px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.crosstab-table tr:hover td {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  min-height: 140px;
+}
+
+@media (max-width: 1024px) {
+  .analytics-layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .analytics-layout-grid .full-width {
+    grid-column: span 1;
+  }
+}
