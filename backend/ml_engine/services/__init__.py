@@ -1,1 +1,2 @@
 from .training_service import MLService
+from .prediction_service import PredictionService

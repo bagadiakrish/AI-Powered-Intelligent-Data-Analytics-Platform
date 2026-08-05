@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainModelAPIView, TrainedModelListAPIView,TrainedModelDetailAPIView
+from .views import TrainModelAPIView, TrainedModelListAPIView,TrainedModelDetailAPIView,PredictAPIView
 
 
 urlpatterns = [
@@ -17,5 +17,11 @@ urlpatterns = [
     "models/<int:pk>/",
     TrainedModelDetailAPIView.as_view(),
     name="trained-model-detail",
-),
+    
+    ),
+    path(
+        "predict/",
+        PredictAPIView.as_view(),
+        name="predict",
+    ),
 ]
