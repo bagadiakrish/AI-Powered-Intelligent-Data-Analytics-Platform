@@ -2,33 +2,19 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from datasets.models import Dataset
-from .serializers import LinearRegressionSerializer
+from .serializers import TrainedModelSerializer
+from .serializers import TrainModelSerializer
 from .services import MLService
+from .models import TrainedModel
 
 
-class LinearRegressionAPIView(APIView):
+class TrainModelAPIView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, dataset_id):
+    def post(self, request):
 
-        try:
-
-            dataset = Dataset.objects.get(
-                id=dataset_id,
-                uploaded_by=request.user,
-            )
-
-        except Dataset.DoesNotExist:
-
-            return Response(
-                {"error": "Dataset not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        serializer = LinearRegressionSerializer(
+        serializer = TrainModelSerializer(
             data=request.data
         )
 
@@ -36,10 +22,42 @@ class LinearRegressionAPIView(APIView):
             raise_exception=True
         )
 
-        result = MLService.linear_regression(
-            dataset,
-            serializer.validated_data["feature_columns"],
-            serializer.validated_data["target_column"],
+        data = serializer.validated_data
+
+
+        result = MLService.train_linear_regression(
+            data
         )
 
         return Response(result)
+class TrainedModelListAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        models = TrainedModel.objects.all().order_by("-created_at")
+
+        serializer = TrainedModelSerializer(
+            models,
+            many=True,
+        )
+
+        return Response(serializer.data)
+class TrainedModelDetailAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+
+        try:
+            model = TrainedModel.objects.get(pk=pk)
+        except TrainedModel.DoesNotExist:
+            return Response(
+                {"error": "Model not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = TrainedModelSerializer(model)
+
+        return Response(serializer.data)

@@ -24,6 +24,10 @@ urlpatterns = [
     "api/ml/",
     include("ml_engine.urls"),
     ),
+    path(
+    "api/ml/",
+    include("ml_engine.urls"),
+    ),
     
 ]
 

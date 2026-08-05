@@ -1,12 +1,21 @@
 from django.urls import path
+from .views import TrainModelAPIView, TrainedModelListAPIView,TrainedModelDetailAPIView
 
-from .views import LinearRegressionAPIView
 
 urlpatterns = [
-
     path(
-        "<int:dataset_id>/linear-regression/",
-        LinearRegressionAPIView.as_view(),
-        name="linear-regression",
+        "train/",
+        TrainModelAPIView.as_view(),
+        name="train-model",
     ),
+    path(
+        "models/",
+        TrainedModelListAPIView.as_view(),
+        name="trained-model-list",
+    ),
+    path(
+    "models/<int:pk>/",
+    TrainedModelDetailAPIView.as_view(),
+    name="trained-model-detail",
+),
 ]
