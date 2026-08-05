@@ -3,7 +3,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from django.http import JsonResponse
+
+def home_view(request):
+    return JsonResponse({
+        "status": "online",
+        "message": "Nexora Analytics Platform API Server is Running!",
+        "version": "1.1.0"
+    })
+
 urlpatterns = [
+    path("", home_view, name="home"),
     path("admin/", admin.site.urls),
 
     path(
