@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../../services/auth";
 import "./RegisterForm.css";
 
@@ -96,7 +96,7 @@ function RegisterForm() {
 
       <div className="login-link">
         Already have an account? 
-        <a href="/login">Login</a>
+        <Link to="/login">Login</Link>
       </div>
     </form>
   );
