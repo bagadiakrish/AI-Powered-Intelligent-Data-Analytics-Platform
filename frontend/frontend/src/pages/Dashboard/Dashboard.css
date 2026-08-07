@@ -198,3 +198,83 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Box Plot Styling */
+.box-plot-visualizer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.box-plot-visualizer h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary-light);
+  margin-bottom: 5px;
+}
+
+.box-plot-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.metric-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-box .label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.metric-box .value {
+  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+}
+
+.box-plot-graphic-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-xs);
+  position: relative;
+}
+
+.whisker-line-vertical {
+  width: 2px;
+  background: var(--text-muted);
+}
+
+.whisker-tick {
+  position: absolute;
+  left: 15px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.whisker-tick::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  width: 10px;
+  height: 2px;
+  background: var(--text-muted);
+}
+
