@@ -47,7 +47,14 @@ class MLTrainingService:
         test_size = float(params.get("test_size", 0.2))
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
-        if algorithm == "Linear Regression":
+        if algorithm == "Simple Linear Regression":
+            # Simple regression: use only the first column of the feature set X
+            X_train_simple = X_train.iloc[:, [0]]
+            X_test_simple = X_test.iloc[:, [0]]
+            model = LinearRegression()
+            model.fit(X_train_simple, y_train)
+            y_pred = model.predict(X_test_simple)
+        elif algorithm == "Multiple Linear Regression":
             model = LinearRegression()
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
@@ -60,11 +67,6 @@ class MLTrainingService:
             model = LinearRegression()
             model.fit(X_train_poly, y_train)
             y_pred = model.predict(X_test_poly)
-        elif algorithm == "Neural Network (Regression)":
-            hidden_layers = tuple(int(x) for x in params.get("hidden_layers", "64,32").split(","))
-            model = MLPRegressor(hidden_layer_sizes=hidden_layers, activation="relu", max_iter=200, random_state=42)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
         else:
             raise ValueError(f"Unknown regression algorithm: {algorithm}")
 

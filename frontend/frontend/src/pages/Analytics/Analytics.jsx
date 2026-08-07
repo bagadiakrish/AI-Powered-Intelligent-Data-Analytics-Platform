@@ -1,11 +1,31 @@
 import { useState, useEffect } from "react";
 import Layout from "../../components/layout/Layout/Layout";
 import SectionTitle from "../../components/common/SectionTitle/SectionTitle";
-import { getDatasets } from "../../services/dataset";
+import { getDatasets, getDatasetPreview } from "../../services/dataset";
 import { getOverview, getCorrelation, getCrosstab } from "../../services/analytics";
 import { FaChartLine, FaBorderNone, FaTable } from "react-icons/fa";
 import { Bar, Scatter } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  BarElement
+} from "chart.js";
 import "./Analytics.css";
+
+ChartJS.register(
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  BarElement
+);
 
 function Analytics() {
   const [datasets, setDatasets] = useState([]);
@@ -25,6 +45,12 @@ function Analytics() {
   const [crossTabCol2, setCrossTabCol2] = useState("");
   const [crosstabData, setCrosstabData] = useState(null);
   const [crosstabLoading, setCrosstabLoading] = useState(false);
+
+  // New Scatter Plot and Distribution state variables
+  const [previewRows, setPreviewRows] = useState([]);
+  const [scatterX, setScatterX] = useState("");
+  const [scatterY, setScatterY] = useState("");
+  const [scatterData, setScatterData] = useState(null);
 
   useEffect(() => {
     getDatasets()
@@ -47,17 +73,20 @@ function Analytics() {
 
     Promise.all([
       getOverview(selectedDatasetId),
-      getCorrelation(selectedDatasetId)
+      getCorrelation(selectedDatasetId),
+      getDatasetPreview(selectedDatasetId)
     ])
-      .then(([overviewData, corrData]) => {
+      .then(([overviewData, corrData, previewData]) => {
         setOverview(overviewData);
         setCorrelation(corrData);
+        setPreviewRows(previewData.rows || []);
 
-        // Pre-populate crosstab selectors
         const cols = overviewData.columns || [];
         if (cols.length >= 2) {
           setCrossTabCol1(cols[0]);
           setCrossTabCol2(cols[1]);
+          setScatterX(cols[0]);
+          setScatterY(cols[1]);
         }
       })
       .catch((err) => console.error("Error loading analytics overview:", err))
@@ -66,6 +95,32 @@ function Analytics() {
         setCorrLoading(false);
       });
   }, [selectedDatasetId]);
+
+  // Build scatter plot data dynamically
+  useEffect(() => {
+    if (!scatterX || !scatterY || previewRows.length === 0) {
+      setScatterData(null);
+      return;
+    }
+
+    const points = previewRows.map((row) => {
+      const xVal = Number(row[scatterX]);
+      const yVal = Number(row[scatterY]);
+      return { x: isNaN(xVal) ? 0 : xVal, y: isNaN(yVal) ? 0 : yVal };
+    });
+
+    setScatterData({
+      datasets: [
+        {
+          label: `${scatterX} vs ${scatterY}`,
+          data: points,
+          backgroundColor: "rgba(99, 102, 241, 0.75)",
+          borderColor: "#6366f1",
+          borderWidth: 1,
+        }
+      ]
+    });
+  }, [scatterX, scatterY, previewRows]);
 
   // Compute Cross Tabulation
   const handleComputeCrosstab = () => {
@@ -236,6 +291,65 @@ function Analytics() {
                 ) : (
                   <div className="empty-state">
                     <p>Select two categorical/classification columns (e.g. Gender and Result) and click button above.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Bivariate Scatter Plot */}
+            <div className="analytics-card">
+              <div className="card-header-with-icon">
+                <FaChartLine className="header-icon" />
+                <h3>Bivariate Scatter Plot</h3>
+              </div>
+              <p className="subtitle">Graph the relationship between two numerical variables.</p>
+
+              <div className="crosstab-controls">
+                <div>
+                  <label>X-Axis Column</label>
+                  <select value={scatterX} onChange={(e) => setScatterX(e.target.value)}>
+                    {overview.columns.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label>Y-Axis Column</label>
+                  <select value={scatterY} onChange={(e) => setScatterY(e.target.value)}>
+                    {overview.columns.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="crosstab-result-container" style={{ minHeight: "260px", marginTop: "15px" }}>
+                {scatterData ? (
+                  <Scatter 
+                    data={scatterData} 
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          labels: { color: "#cbd5e1" }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          grid: { color: "rgba(255, 255, 255, 0.05)" },
+                          ticks: { color: "#cbd5e1" }
+                        },
+                        y: {
+                          grid: { color: "rgba(255, 255, 255, 0.05)" },
+                          ticks: { color: "#cbd5e1" }
+                        }
+                      }
+                    }} 
+                  />
+                ) : (
+                  <div className="empty-state">
+                    <p>Select numerical columns to visualize scatter points.</p>
                   </div>
                 )}
               </div>

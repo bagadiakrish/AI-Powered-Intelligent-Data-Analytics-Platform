@@ -44,46 +44,28 @@ function Reports() {
     alert(details);
   };
 
-  const handleDownload = (report) => {
-    let content = `==================================================\n`;
-    content += `         NEXORA ANALYTICS TRAINING REPORT         \n`;
-    content += `==================================================\n\n`;
-    content += `Model ID: #${report.id}\n`;
-    content += `Algorithm: ${report.algorithm}\n`;
-    content += `Dataset Name: ${report.dataset_title || "Unknown"}\n`;
-    content += `Target Column: ${report.target_column}\n`;
-    content += `Date Generated: ${new Date(report.created_at).toLocaleString()}\n\n`;
-
-    if (report.r2_score !== null) {
-      content += `EVALUATION METRICS (REGRESSION):\n`;
-      content += `--------------------------------------------------\n`;
-      content += `R-Squared (R²): ${(report.r2_score * 100).toFixed(4)}%\n`;
-      content += `Mean Absolute Error (MAE): ${report.mae?.toFixed(6)}\n`;
-      content += `Mean Squared Error (MSE): ${report.mse?.toFixed(6)}\n`;
-    } else {
-      content += `EVALUATION METRICS (CLASSIFICATION):\n`;
-      content += `--------------------------------------------------\n`;
-      content += `Accuracy: ${(report.accuracy * 100).toFixed(4)}%\n`;
-      content += `Error Rate: ${(report.error_rate * 100).toFixed(4)}%\n`;
-      content += `Sensitivity: ${(report.sensitivity * 100).toFixed(4)}%\n`;
-      content += `Specificity: ${(report.specificity * 100).toFixed(4)}%\n`;
-      
-      if (report.confusion_matrix) {
-        content += `\nConfusion Matrix values:\n`;
-        content += `${JSON.stringify(report.confusion_matrix.matrix)}\n`;
-      }
+  const handleDownload = async (report) => {
+    try {
+      const token = localStorage.getItem("access");
+      const baseURL = import.meta.env.VITE_API_URL || "https://nexora-analytics-backend.onrender.com/api";
+      const response = await fetch(`${baseURL}/ml/models/${report.id}/pdf/`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error("Failed to download PDF");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const element = document.createElement("a");
+      element.href = url;
+      element.download = `model_report_#${report.id}.pdf`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    } catch (err) {
+      alert("Failed to download PDF: " + err.message);
     }
-
-    content += `\n==================================================\n`;
-    content += `End of report.\n`;
-
-    const element = document.createElement("a");
-    const file = new Blob([content], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = `model_report_#${report.id}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
   };
 
   const handleDelete = async (id) => {

@@ -4,7 +4,7 @@ import SectionTitle from "../../components/common/SectionTitle/SectionTitle";
 import { getDatasets, getDatasetPreview } from "../../services/dataset";
 import { getModels } from "../../services/prediction";
 import { FaDatabase, FaBrain, FaRegChartBar, FaAngleRight } from "react-icons/fa";
-import { Line, Bar } from "react-chartjs-2";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +12,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -25,6 +26,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -84,23 +86,39 @@ function Dashboard() {
           return isNaN(val) ? 0 : val;
         });
 
+        const isDoughnut = chartType === "doughnut";
         setChartData({
           labels,
           datasets: [
             {
               label: selectedColumn,
               data: values,
-              borderColor: "#6366f1",
-              backgroundColor: "rgba(99, 102, 241, 0.15)",
+              borderColor: isDoughnut 
+                ? ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e", "#10b981"]
+                : "#6366f1",
+              backgroundColor: isDoughnut
+                ? [
+                    "rgba(99, 102, 241, 0.6)",
+                    "rgba(14, 165, 233, 0.6)",
+                    "rgba(16, 185, 129, 0.6)",
+                    "rgba(245, 158, 11, 0.6)",
+                    "rgba(239, 68, 68, 0.6)",
+                    "rgba(139, 92, 246, 0.6)",
+                    "rgba(236, 72, 153, 0.6)",
+                    "rgba(20, 184, 166, 0.6)",
+                    "rgba(244, 63, 94, 0.6)",
+                    "rgba(16, 185, 129, 0.6)"
+                  ]
+                : "rgba(99, 102, 241, 0.15)",
               fill: true,
               tension: 0.4,
-              borderWidth: 3,
+              borderWidth: isDoughnut ? 1 : 3,
             },
           ],
         });
       })
       .catch((err) => console.error("Error updating chart:", err));
-  }, [selectedDatasetId, selectedColumn]);
+  }, [selectedDatasetId, selectedColumn, chartType]);
 
   const successRate = models.length 
     ? Math.round((models.filter(m => (m.r2_score && m.r2_score > 0.5) || (m.accuracy && m.accuracy > 0.7)).length / models.length) * 100)
@@ -208,6 +226,7 @@ function Dashboard() {
               <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
                 <option value="line">Line Plot</option>
                 <option value="bar">Bar Chart</option>
+                <option value="doughnut">Doughnut Chart</option>
               </select>
             </div>
           </div>
@@ -217,8 +236,10 @@ function Dashboard() {
               {chartData ? (
                 chartType === "line" ? (
                   <Line data={chartData} options={chartOptions} />
-                ) : (
+                ) : chartType === "bar" ? (
                   <Bar data={chartData} options={chartOptions} />
+                ) : (
+                  <Doughnut data={chartData} options={chartOptions} />
                 )
               ) : (
                 <div className="empty-chart-state">

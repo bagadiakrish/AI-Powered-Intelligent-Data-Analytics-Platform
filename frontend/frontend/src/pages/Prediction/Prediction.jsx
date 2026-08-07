@@ -7,7 +7,7 @@ import { FaCogs, FaPlay, FaBrain, FaChartLine } from "react-icons/fa";
 import "./Prediction.css";
 
 const algorithms = {
-  regression: ["Linear Regression", "Polynomial Regression", "Neural Network (Regression)"],
+  regression: ["Simple Linear Regression", "Multiple Linear Regression", "Polynomial Regression"],
   classification: ["kNN", "Decision Tree", "Random Forest", "SVM", "Neural Network (Classification)"],
   deep_learning: ["Convolutional Neural Network (CNN)", "Transfer Learning"]
 };
@@ -18,7 +18,7 @@ function Prediction() {
   const [columns, setColumns] = useState([]);
   const [selectedTarget, setSelectedTarget] = useState("");
   const [taskType, setTaskType] = useState("regression");
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState("Linear Regression");
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState("Simple Linear Regression");
   
   // Params
   const [params, setParams] = useState({
