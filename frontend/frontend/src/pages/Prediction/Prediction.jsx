@@ -8,8 +8,8 @@ import "./Prediction.css";
 
 const algorithms = {
   regression: ["Simple Linear Regression", "Multiple Linear Regression", "Polynomial Regression"],
-  classification: ["kNN", "Decision Tree", "Random Forest", "SVM", "Neural Network (Classification)"],
-  deep_learning: ["Convolutional Neural Network (CNN)", "Transfer Learning"]
+  classification: ["kNN", "Decision Tree", "Random Forest", "SVM"],
+  deep_learning: ["Convolutional Neural Network (CNN)"]
 };
 
 function Prediction() {

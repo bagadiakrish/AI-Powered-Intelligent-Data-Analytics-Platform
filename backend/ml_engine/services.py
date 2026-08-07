@@ -113,9 +113,6 @@ class MLTrainingService:
         elif algorithm == "SVM":
             kernel = params.get("kernel", "rbf")
             model = SVC(kernel=kernel, probability=True, random_state=42)
-        elif algorithm == "Neural Network (Classification)":
-            hidden_layers = tuple(int(x) for x in params.get("hidden_layers", "64,32").split(","))
-            model = MLPClassifier(hidden_layer_sizes=hidden_layers, activation="relu", max_iter=200, random_state=42)
         else:
             raise ValueError(f"Unknown classification algorithm: {algorithm}")
 

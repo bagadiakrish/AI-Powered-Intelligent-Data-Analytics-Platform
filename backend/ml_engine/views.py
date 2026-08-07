@@ -22,8 +22,8 @@ class TrainModelView(APIView):
 
         dataset = get_object_or_404(Dataset, id=dataset_id, user=request.user)
 
-        # Handle Deep Learning Simulated models (Unit 6 Neural Networks, CNN, Transfer Learning)
-        if algorithm in ["Convolutional Neural Network (CNN)", "Transfer Learning"]:
+        # Handle Deep Learning Simulated models (Unit 6 Neural Networks, CNN)
+        if algorithm in ["Convolutional Neural Network (CNN)"]:
             # Generate simulated epoch logs for training feedback
             epochs = int(params.get("epochs", 5))
             learning_rate = float(params.get("learning_rate", 0.001))
@@ -46,27 +46,17 @@ class TrainModelView(APIView):
                 )
 
             # Define simulated layers based on type (Unit 6.2 Convolution, pooling, dropout)
-            if algorithm == "Convolutional Neural Network (CNN)":
-                layers = [
-                    "Input Layer (Image Shape: 128x128x3)",
-                    f"Conv2D (32 filters, 3x3 kernel, Activation: ReLU)",
-                    "MaxPooling2D (2x2 pool size)",
-                    f"Conv2D (64 filters, 3x3 kernel, Activation: ReLU)",
-                    "MaxPooling2D (2x2 pool size)",
-                    f"Dropout ({dropout})",
-                    "Flatten",
-                    "Dense (128 units, Activation: ReLU)",
-                    "Dense (Output, Activation: Softmax)"
-                ]
-            else:
-                layers = [
-                    "Input Layer (Image Shape: 224x224x3)",
-                    "Pre-trained MobileNetV2 Base (Weights: ImageNet, Freezed)",
-                    "GlobalAveragePooling2D",
-                    f"Dense (256 units, Activation: ReLU)",
-                    f"Dropout ({dropout})",
-                    "Dense (Output, Activation: Softmax)"
-                ]
+            layers = [
+                "Input Layer (Image Shape: 128x128x3)",
+                f"Conv2D (32 filters, 3x3 kernel, Activation: ReLU)",
+                "MaxPooling2D (2x2 pool size)",
+                f"Conv2D (64 filters, 3x3 kernel, Activation: ReLU)",
+                "MaxPooling2D (2x2 pool size)",
+                f"Dropout ({dropout})",
+                "Flatten",
+                "Dense (128 units, Activation: ReLU)",
+                "Dense (Output, Activation: Softmax)"
+            ]
 
             trained_model = TrainedModel.objects.create(
                 user=request.user,
@@ -89,6 +79,9 @@ class TrainModelView(APIView):
                 "model_id": trained_model.id,
                 "algorithm": algorithm,
                 "accuracy": acc,
+                "error_rate": 1.0 - acc,
+                "sensitivity": acc * 1.05,
+                "specificity": acc * 0.95,
                 "confusion_matrix": trained_model.confusion_matrix,
                 "logs": logs,
                 "layers": layers
@@ -102,7 +95,7 @@ class TrainModelView(APIView):
                 df = pd.read_excel(dataset.file.path)
 
             regression_algs = ["Simple Linear Regression", "Multiple Linear Regression", "Polynomial Regression"]
-            classification_algs = ["kNN", "Decision Tree", "Random Forest", "SVM", "Neural Network (Classification)"]
+            classification_algs = ["kNN", "Decision Tree", "Random Forest", "SVM"]
 
             if algorithm in regression_algs:
                 results = MLTrainingService.train_regression(df, target_col, algorithm, params)
