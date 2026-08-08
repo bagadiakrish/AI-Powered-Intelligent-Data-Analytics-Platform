@@ -42,7 +42,7 @@ function Dashboard() {
   const [selectedDatasetId, setSelectedDatasetId] = useState("");
   const [columns, setColumns] = useState([]);
   const [selectedXColumn, setSelectedXColumn] = useState("");
-  const [selectedYColumn, setSelectedYColumn] = useState("");
+  const [selectedYColumns, setSelectedYColumns] = useState([]);
   const [chartType, setChartType] = useState("line");
   const [chartData, setChartData] = useState(null);
   const [boxSummary, setBoxSummary] = useState(null);
@@ -70,7 +70,7 @@ function Dashboard() {
         setColumns(cols);
         if (cols.length > 0) {
           setSelectedXColumn(cols[0]);
-          setSelectedYColumn(cols[cols.length > 1 ? 1 : 0]);
+          setSelectedYColumns(cols.length > 1 ? [cols[1]] : [cols[0]]);
         }
       })
       .catch((err) => console.error("Error fetching preview for dashboard:", err));
@@ -78,13 +78,14 @@ function Dashboard() {
 
   // Build chart data when selected column or dataset preview changes
   useEffect(() => {
-    if (!selectedDatasetId || !selectedYColumn) return;
+    if (!selectedDatasetId || selectedYColumns.length === 0) return;
 
     getDatasetPreview(selectedDatasetId)
       .then((data) => {
         const rows = data.rows || [];
+        const primaryYColumn = selectedYColumns[0];
         const numericValues = rows
-          .map((row) => Number(row[selectedYColumn]))
+          .map((row) => Number(row[primaryYColumn]))
           .filter((val) => !isNaN(val));
 
         if (chartType === "box") {
@@ -140,7 +141,7 @@ function Dashboard() {
             labels: binLabels,
             datasets: [
               {
-                label: `Frequency of ${selectedYColumn}`,
+                label: `Frequency of ${primaryYColumn}`,
                 data: bins,
                 backgroundColor: "rgba(14, 165, 233, 0.6)",
                 borderColor: "#0ea5e9",
@@ -151,29 +152,50 @@ function Dashboard() {
         } else {
           setBoxSummary(null);
           const labels = rows.map((row) => String(row[selectedXColumn] || ""));
-          const values = rows.map((row) => {
-            const val = Number(row[selectedYColumn]);
-            return isNaN(val) ? 0 : val;
+          
+          const colors = [
+            { border: "#6366f1", bg: "rgba(99, 102, 241, 0.6)", bgLine: "rgba(99, 102, 241, 0.15)" },
+            { border: "#10b981", bg: "rgba(16, 185, 129, 0.6)", bgLine: "rgba(16, 185, 129, 0.15)" },
+            { border: "#f59e0b", bg: "rgba(245, 158, 11, 0.6)", bgLine: "rgba(245, 158, 11, 0.15)" },
+            { border: "#ec4899", bg: "rgba(236, 72, 153, 0.6)", bgLine: "rgba(236, 72, 153, 0.15)" },
+            { border: "#a855f7", bg: "rgba(168, 85, 247, 0.6)", bgLine: "rgba(168, 85, 247, 0.15)" },
+          ];
+
+          const datasets = selectedYColumns.map((col, idx) => {
+            const values = rows.map((row) => {
+              const val = Number(row[col]);
+              return isNaN(val) ? 0 : val;
+            });
+            const color = colors[idx % colors.length];
+            return {
+              label: col,
+              data: values,
+              borderColor: color.border,
+              backgroundColor: chartType === "bar" ? color.bg : color.bgLine,
+              fill: chartType === "line",
+              tension: 0.4,
+              borderWidth: 3,
+            };
           });
 
           setChartData({
             labels,
-            datasets: [
-              {
-                label: `${selectedYColumn} vs ${selectedXColumn}`,
-                data: values,
-                borderColor: "#6366f1",
-                backgroundColor: chartType === "bar" ? "rgba(99, 102, 241, 0.6)" : "rgba(99, 102, 241, 0.15)",
-                fill: chartType === "line",
-                tension: 0.4,
-                borderWidth: 3,
-              },
-            ],
+            datasets
           });
         }
       })
       .catch((err) => console.error("Error updating chart:", err));
-  }, [selectedDatasetId, selectedXColumn, selectedYColumn, chartType]);
+  }, [selectedDatasetId, selectedXColumn, selectedYColumns, chartType]);
+
+  const handleYColumnToggle = (col) => {
+    if (selectedYColumns.includes(col)) {
+      if (selectedYColumns.length > 1) {
+        setSelectedYColumns(selectedYColumns.filter((c) => c !== col));
+      }
+    } else {
+      setSelectedYColumns([...selectedYColumns, col]);
+    }
+  };
 
   const successRate = models.length 
     ? Math.round((models.filter(m => (m.r2_score && m.r2_score > 0.5) || (m.accuracy && m.accuracy > 0.7)).length / models.length) * 100)
@@ -204,7 +226,7 @@ function Dashboard() {
       y: {
         title: {
           display: true,
-          text: chartType === "histogram" ? "Frequency Count" : selectedYColumn,
+          text: chartType === "histogram" ? "Frequency Count" : (selectedYColumns.length === 1 ? selectedYColumns[0] : "Values"),
           color: "#cbd5e1",
           font: { family: "Plus Jakarta Sans", size: 12, weight: "bold" }
         },
@@ -279,7 +301,11 @@ function Dashboard() {
                   <label>Select X-Axis Column (Independent)</label>
                   <select 
                     value={selectedXColumn} 
-                    onChange={(e) => setSelectedXColumn(e.target.value)}
+                    onChange={(e) => {
+                      const newX = e.target.value;
+                      setSelectedXColumn(newX);
+                      setSelectedYColumns((prev) => prev.filter((y) => y !== newX));
+                    }}
                     disabled={columns.length === 0}
                   >
                     {columns.length === 0 ? (
@@ -293,20 +319,24 @@ function Dashboard() {
                 </>
               )}
 
-              <label>{chartType === "histogram" || chartType === "box" ? "Select Numeric Column" : "Select Y-Axis Column (Dependent)"}</label>
-              <select 
-                value={selectedYColumn} 
-                onChange={(e) => setSelectedYColumn(e.target.value)}
-                disabled={columns.length === 0}
-              >
-                {columns.length === 0 ? (
-                  <option value="">No columns</option>
-                ) : (
-                  columns.map((col) => (
-                    <option key={col} value={col}>{col}</option>
-                  ))
+              <label>{chartType === "histogram" || chartType === "box" ? "Select Numeric Column (First checked)" : "Select Y-Axis Column(s) (Dependent)"}</label>
+              <div className="premium-checkbox-list">
+                {columns.filter((col) => chartType === "histogram" || chartType === "box" || col !== selectedXColumn).map((col) => (
+                  <div key={col} className="premium-checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id={`dashboard-chk-${col}`}
+                      checked={selectedYColumns.includes(col)} 
+                      onChange={() => handleYColumnToggle(col)}
+                      disabled={columns.length === 0}
+                    />
+                    <label htmlFor={`dashboard-chk-${col}`}>{col}</label>
+                  </div>
+                ))}
+                {columns.length === 0 && (
+                  <span className="placeholder-text" style={{ fontSize: "12px" }}>No columns available</span>
                 )}
-              </select>
+              </div>
 
               <label>Chart Style</label>
               <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
@@ -322,7 +352,7 @@ function Dashboard() {
             <div className="chart-container">
               {boxSummary && chartType === "box" ? (
                 <div className="box-plot-visualizer">
-                  <h4>Box & Whisker Plot: {selectedYColumn}</h4>
+                  <h4>Box & Whisker Plot: {selectedYColumns[0]}</h4>
                   <div className="box-plot-metrics-grid">
                     <div className="metric-box"><span className="label">Maximum</span><span className="value">{boxSummary.max.toFixed(3)}</span></div>
                     <div className="metric-box"><span className="label">Q3 (75th Percentile)</span><span className="value">{boxSummary.q3.toFixed(3)}</span></div>

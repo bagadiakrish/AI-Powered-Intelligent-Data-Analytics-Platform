@@ -152,22 +152,9 @@ function Prediction() {
               </select>
 
               <label>Predictor Columns (X) - Features</label>
-              <div className="features-checkbox-list" style={{
-                maxHeight: "130px",
-                overflowY: "auto",
-                border: "1px solid #1a2c42",
-                borderRadius: "6px",
-                padding: "10px",
-                background: "#0c1524",
-                marginBottom: "15px"
-              }}>
+              <div className="premium-checkbox-list">
                 {columns.filter((col) => col !== selectedTarget).map((col) => (
-                  <div key={col} className="feature-checkbox-item" style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "6px"
-                  }}>
+                  <div key={col} className="premium-checkbox-item">
                     <input 
                       type="checkbox" 
                       id={`chk-${col}`}
@@ -175,7 +162,7 @@ function Prediction() {
                       onChange={() => handleFeatureToggle(col)}
                       disabled={loading}
                     />
-                    <label htmlFor={`chk-${col}`} style={{ margin: 0, cursor: "pointer", fontSize: "14px", color: "#b9c7d9" }}>{col}</label>
+                    <label htmlFor={`chk-${col}`}>{col}</label>
                   </div>
                 ))}
                 {columns.filter((col) => col !== selectedTarget).length === 0 && (
