@@ -41,8 +41,8 @@ function Dashboard() {
   // Selector state for dynamic charts
   const [selectedDatasetId, setSelectedDatasetId] = useState("");
   const [columns, setColumns] = useState([]);
-  const [selectedXColumn, setSelectedXColumn] = useState("");
-  const [selectedYColumns, setSelectedYColumns] = useState([]);
+  const [selectedTarget, setSelectedTarget] = useState("");
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [chartType, setChartType] = useState("line");
   const [chartData, setChartData] = useState(null);
   const [boxSummary, setBoxSummary] = useState(null);
@@ -69,8 +69,9 @@ function Dashboard() {
         const cols = data.columns || [];
         setColumns(cols);
         if (cols.length > 0) {
-          setSelectedXColumn(cols[0]);
-          setSelectedYColumns(cols.length > 1 ? [cols[1]] : [cols[0]]);
+          const target = cols[cols.length - 1];
+          setSelectedTarget(target);
+          setSelectedFeatures(cols.filter((c) => c !== target));
         }
       })
       .catch((err) => console.error("Error fetching preview for dashboard:", err));
@@ -78,14 +79,14 @@ function Dashboard() {
 
   // Build chart data when selected column or dataset preview changes
   useEffect(() => {
-    if (!selectedDatasetId || selectedYColumns.length === 0) return;
+    if (!selectedDatasetId || selectedFeatures.length === 0 || !selectedTarget) return;
 
     getDatasetPreview(selectedDatasetId)
       .then((data) => {
         const rows = data.rows || [];
-        const primaryYColumn = selectedYColumns[0];
+        const primaryFeature = selectedFeatures[0];
         const numericValues = rows
-          .map((row) => Number(row[primaryYColumn]))
+          .map((row) => Number(row[primaryFeature]))
           .filter((val) => !isNaN(val));
 
         if (chartType === "box") {
@@ -141,7 +142,7 @@ function Dashboard() {
             labels: binLabels,
             datasets: [
               {
-                label: `Frequency of ${primaryYColumn}`,
+                label: `Frequency of ${primaryFeature}`,
                 data: bins,
                 backgroundColor: "rgba(14, 165, 233, 0.6)",
                 borderColor: "#0ea5e9",
@@ -151,7 +152,7 @@ function Dashboard() {
           });
         } else {
           setBoxSummary(null);
-          const labels = rows.map((row) => String(row[selectedXColumn] || ""));
+          const labels = rows.map((row) => String(row[selectedTarget] || ""));
           
           const colors = [
             { border: "#6366f1", bg: "rgba(99, 102, 241, 0.6)", bgLine: "rgba(99, 102, 241, 0.15)" },
@@ -161,7 +162,7 @@ function Dashboard() {
             { border: "#a855f7", bg: "rgba(168, 85, 247, 0.6)", bgLine: "rgba(168, 85, 247, 0.15)" },
           ];
 
-          const datasets = selectedYColumns.map((col, idx) => {
+          const datasets = selectedFeatures.map((col, idx) => {
             const values = rows.map((row) => {
               const val = Number(row[col]);
               return isNaN(val) ? 0 : val;
@@ -185,15 +186,15 @@ function Dashboard() {
         }
       })
       .catch((err) => console.error("Error updating chart:", err));
-  }, [selectedDatasetId, selectedXColumn, selectedYColumns, chartType]);
+  }, [selectedDatasetId, selectedTarget, selectedFeatures, chartType]);
 
-  const handleYColumnToggle = (col) => {
-    if (selectedYColumns.includes(col)) {
-      if (selectedYColumns.length > 1) {
-        setSelectedYColumns(selectedYColumns.filter((c) => c !== col));
+  const handleFeatureToggle = (col) => {
+    if (selectedFeatures.includes(col)) {
+      if (selectedFeatures.length > 1) {
+        setSelectedFeatures(selectedFeatures.filter((c) => c !== col));
       }
     } else {
-      setSelectedYColumns([...selectedYColumns, col]);
+      setSelectedFeatures([...selectedFeatures, col]);
     }
   };
 
@@ -216,7 +217,7 @@ function Dashboard() {
       x: {
         title: {
           display: true,
-          text: chartType === "histogram" ? "Bin Ranges" : selectedXColumn,
+          text: chartType === "histogram" ? "Bin Ranges" : selectedTarget,
           color: "#cbd5e1",
           font: { family: "Plus Jakarta Sans", size: 12, weight: "bold" }
         },
@@ -226,7 +227,7 @@ function Dashboard() {
       y: {
         title: {
           display: true,
-          text: chartType === "histogram" ? "Frequency Count" : (selectedYColumns.length === 1 ? selectedYColumns[0] : "Values"),
+          text: chartType === "histogram" ? "Frequency Count" : (selectedFeatures.length === 1 ? selectedFeatures[0] : "Features Value"),
           color: "#cbd5e1",
           font: { family: "Plus Jakarta Sans", size: 12, weight: "bold" }
         },
@@ -298,13 +299,13 @@ function Dashboard() {
 
               {chartType !== "histogram" && chartType !== "box" && (
                 <>
-                  <label>Select X-Axis Column (Independent)</label>
+                  <label>Target Column (y)</label>
                   <select 
-                    value={selectedXColumn} 
+                    value={selectedTarget} 
                     onChange={(e) => {
-                      const newX = e.target.value;
-                      setSelectedXColumn(newX);
-                      setSelectedYColumns((prev) => prev.filter((y) => y !== newX));
+                      const newTarget = e.target.value;
+                      setSelectedTarget(newTarget);
+                      setSelectedFeatures((prev) => prev.filter((y) => y !== newTarget));
                     }}
                     disabled={columns.length === 0}
                   >
@@ -319,15 +320,15 @@ function Dashboard() {
                 </>
               )}
 
-              <label>{chartType === "histogram" || chartType === "box" ? "Select Numeric Column (First checked)" : "Select Y-Axis Column(s) (Dependent)"}</label>
+              <label>{chartType === "histogram" || chartType === "box" ? "Select Numeric Column (First checked)" : "Predictor Columns (X) - Features"}</label>
               <div className="premium-checkbox-list">
-                {columns.filter((col) => chartType === "histogram" || chartType === "box" || col !== selectedXColumn).map((col) => (
+                {columns.filter((col) => chartType === "histogram" || chartType === "box" || col !== selectedTarget).map((col) => (
                   <div key={col} className="premium-checkbox-item">
                     <input 
                       type="checkbox" 
                       id={`dashboard-chk-${col}`}
-                      checked={selectedYColumns.includes(col)} 
-                      onChange={() => handleYColumnToggle(col)}
+                      checked={selectedFeatures.includes(col)} 
+                      onChange={() => handleFeatureToggle(col)}
                       disabled={columns.length === 0}
                     />
                     <label htmlFor={`dashboard-chk-${col}`}>{col}</label>
@@ -352,7 +353,7 @@ function Dashboard() {
             <div className="chart-container">
               {boxSummary && chartType === "box" ? (
                 <div className="box-plot-visualizer">
-                  <h4>Box & Whisker Plot: {selectedYColumns[0]}</h4>
+                  <h4>Box & Whisker Plot: {selectedFeatures[0]}</h4>
                   <div className="box-plot-metrics-grid">
                     <div className="metric-box"><span className="label">Maximum</span><span className="value">{boxSummary.max.toFixed(3)}</span></div>
                     <div className="metric-box"><span className="label">Q3 (75th Percentile)</span><span className="value">{boxSummary.q3.toFixed(3)}</span></div>
