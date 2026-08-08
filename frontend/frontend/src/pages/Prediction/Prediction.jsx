@@ -28,9 +28,6 @@ function Prediction() {
     n_estimators: 100,
     kernel: "rbf",
     degree: 2,
-    epochs: 5,
-    learning_rate: 0.001,
-    dropout: 0.25,
     hidden_layers: "64,32"
   });
 
@@ -79,51 +76,16 @@ function Prediction() {
     setTrainingLogs([]);
     setModelResult(null);
 
-    // If deep learning, simulate the progress logs locally with intervals
-    if (taskType === "deep_learning") {
-      setTrainingLogs(["Initializing Deep Learning Model...", "Loading Image Pre-processing modules..."]);
-      
-      const epochs = parseInt(params.epochs);
-      let epoch = 1;
-
-      const interval = setInterval(async () => {
-        if (epoch <= epochs) {
-          const loss = (1.2 - 0.1 * epoch).toFixed(4);
-          const acc = (0.55 + 0.07 * epoch).toFixed(4);
-          const valLoss = (1.25 - 0.09 * epoch).toFixed(4);
-          const valAcc = (0.52 + 0.07 * epoch).toFixed(4);
-          
-          setTrainingLogs((prev) => [
-            ...prev, 
-            `Epoch ${epoch}/${epochs} - loss: ${loss} - accuracy: ${acc} - val_loss: ${valLoss} - val_accuracy: ${valAcc}`
-          ]);
-          epoch++;
-        } else {
-          clearInterval(interval);
-          setTrainingLogs((prev) => [...prev, "Training Complete! Generating confusion matrix..."]);
-          
-          try {
-            const data = await trainModel(selectedDatasetId, selectedTarget, selectedAlgorithm, params);
-            setModelResult(data);
-          } catch (err) {
-            alert("Error finalizing model training.");
-          } finally {
-            setLoading(false);
-          }
-        }
-      }, 800);
-    } else {
-      // Standard ML models
-      try {
-        setTrainingLogs(["Splitting dataset into train and test sets...", `Fitting ${selectedAlgorithm} model...`]);
-        const data = await trainModel(selectedDatasetId, selectedTarget, selectedAlgorithm, params);
-        setTrainingLogs((prev) => [...prev, "Training Complete! Evaluating model performance."]);
-        setModelResult(data);
-      } catch (err) {
-        alert("Training failed: " + (err.response?.data?.detail || err.message));
-      } finally {
-        setLoading(false);
-      }
+    // Standard ML models
+    try {
+      setTrainingLogs(["Splitting dataset into train and test sets...", `Fitting ${selectedAlgorithm} model...`]);
+      const data = await trainModel(selectedDatasetId, selectedTarget, selectedAlgorithm, params);
+      setTrainingLogs((prev) => [...prev, "Training Complete! Evaluating model performance."]);
+      setModelResult(data);
+    } catch (err) {
+      alert("Training failed: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,7 +136,6 @@ function Prediction() {
               >
                 <option value="regression">Regression (Continuous Targets)</option>
                 <option value="classification">Classification (Categories/Discrete)</option>
-                <option value="deep_learning">Deep Learning (Simulated Image Tasks)</option>
               </select>
 
               <label>Algorithm Selection</label>
@@ -274,42 +235,7 @@ function Prediction() {
                   </>
                 )}
 
-                {selectedAlgorithm.includes("Neural Network") && (
-                  <>
-                    <label>Hidden Layers Configuration</label>
-                    <input 
-                      type="text" 
-                      value={params.hidden_layers}
-                      placeholder="e.g. 64,32"
-                      onChange={(e) => handleParamChange("hidden_layers", e.target.value)}
-                      disabled={loading}
-                    />
-                  </>
-                )}
 
-                {taskType === "deep_learning" && (
-                  <>
-                    <label>Training Epochs</label>
-                    <input 
-                      type="number" 
-                      min="1" 
-                      max="30" 
-                      value={params.epochs}
-                      onChange={(e) => handleParamChange("epochs", e.target.value)}
-                      disabled={loading}
-                    />
-                    <label>Dropout Ratio</label>
-                    <input 
-                      type="number" 
-                      step="0.05" 
-                      min="0.0" 
-                      max="0.8" 
-                      value={params.dropout}
-                      onChange={(e) => handleParamChange("dropout", e.target.value)}
-                      disabled={loading}
-                    />
-                  </>
-                )}
               </div>
 
               <button type="submit" className="train-submit-btn" disabled={loading || datasets.length === 0}>
@@ -386,8 +312,8 @@ function Prediction() {
                   </div>
                 )}
 
-                {/* Classification / Deep Learning results (Unit 5.3) */}
-                {(taskType === "classification" || taskType === "deep_learning") && (
+                {/* Classification results (Unit 5.3) */}
+                {taskType === "classification" && (
                   <div className="classification-results-group">
                     <div className="metrics-summary-row">
                       <div className="metric-box">
@@ -431,19 +357,6 @@ function Prediction() {
                               </div>
                             ))}
                           </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {modelResult.layers && (
-                      <div className="deep-learning-architecture">
-                        <h5>Model Neural Architecture Layers</h5>
-                        <div className="layers-stack">
-                          {modelResult.layers.map((layer, idx) => (
-                            <div key={idx} className="layer-block">
-                              <span>{idx + 1}. {layer}</span>
-                            </div>
-                          ))}
                         </div>
                       </div>
                     )}

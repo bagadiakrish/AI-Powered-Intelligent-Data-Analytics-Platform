@@ -91,16 +91,16 @@ const slides = [
   },
   {
     id: 6,
-    title: "Unit 6: Deep Learning Sandbox",
-    tagline: "CONVOLUTIONAL NEURAL NETWORKS",
-    subtitle: "Simulated deep learning logs and visual layers visualization.",
-    type: "deep-learning",
+    title: "Unit 8, 9 & 10: API & Reporting",
+    tagline: "MODEL REPORT EXPORT GATEWAY",
+    subtitle: "Secure REST APIs, JWT session authorization, and PDF report exporters.",
+    type: "features-grid",
     theme: "cyberpunk",
-    layers: ["Input: Image Node", "Conv2D: Feature maps", "MaxPool: Dimension reduction", "Dropout: Regularization", "Dense: Softmax classification"],
-    logs: [
-      "Epoch 1/5 - loss: 0.9542 - accuracy: 0.5842 - val_loss: 0.9854",
-      "Epoch 3/5 - loss: 0.5214 - accuracy: 0.7963 - val_loss: 0.5482",
-      "Epoch 5/5 - loss: 0.2214 - accuracy: 0.9412 - val_loss: 0.2584"
+    features: [
+      { title: "RESTful Endpoints", desc: "Decoupled Django views returning normalized JSON outputs for all clean and fit calculations." },
+      { title: "JWT Authorization", desc: "Authenticates requests using signed access/refresh tokens to secure user datasets." },
+      { title: "PDF Report Exporter", desc: "Uses ReportLab on the backend to dynamically compile trained model parameters and metrics into a PDF." },
+      { title: "SQLite3 Persistence", desc: "Reliable database tables storing user profiles and ML model logs locally." }
     ]
   },
   {
@@ -111,10 +111,10 @@ const slides = [
     type: "bullets",
     theme: "neon-blue",
     points: [
-      "Solved Static Dashboard widgets: Dynamic charting replaces static values.",
+      "Solved Static Dashboard widgets: Dynamic charting scales to any uploaded file.",
       "Universal Dark Navy theme enforced across all views.",
-      "High-fidelity simulation consoles for Deep Learning without local GPU overheads.",
-      "Downloadable model training summary logs in standardized txt formats."
+      "Interactive 5-Number summary and Box & Whisker plot visualizers.",
+      "Downloadable model training summary reports in standardized PDF format."
     ]
   },
   {

@@ -22,70 +22,7 @@ class TrainModelView(APIView):
 
         dataset = get_object_or_404(Dataset, id=dataset_id, user=request.user)
 
-        # Handle Deep Learning Simulated models (Unit 6 Neural Networks, CNN)
-        if algorithm in ["Convolutional Neural Network (CNN)"]:
-            # Generate simulated epoch logs for training feedback
-            epochs = int(params.get("epochs", 5))
-            learning_rate = float(params.get("learning_rate", 0.001))
-            dropout = float(params.get("dropout", 0.25))
 
-            logs = []
-            loss = 0.8
-            val_loss = 0.85
-            acc = 0.5
-            val_acc = 0.48
-
-            for epoch in range(1, epochs + 1):
-                loss -= 0.1 * (1 - epoch / (epochs + 2))
-                val_loss -= 0.08 * (1 - epoch / (epochs + 2))
-                acc += 0.09 * (1 - epoch / (epochs + 2))
-                val_acc += 0.08 * (1 - epoch / (epochs + 2))
-
-                logs.append(
-                    f"Epoch {epoch}/{epochs} - loss: {loss:.4f} - accuracy: {acc:.4f} - val_loss: {val_loss:.4f} - val_accuracy: {val_acc:.4f}"
-                )
-
-            # Define simulated layers based on type (Unit 6.2 Convolution, pooling, dropout)
-            layers = [
-                "Input Layer (Image Shape: 128x128x3)",
-                f"Conv2D (32 filters, 3x3 kernel, Activation: ReLU)",
-                "MaxPooling2D (2x2 pool size)",
-                f"Conv2D (64 filters, 3x3 kernel, Activation: ReLU)",
-                "MaxPooling2D (2x2 pool size)",
-                f"Dropout ({dropout})",
-                "Flatten",
-                "Dense (128 units, Activation: ReLU)",
-                "Dense (Output, Activation: Softmax)"
-            ]
-
-            trained_model = TrainedModel.objects.create(
-                user=request.user,
-                dataset=dataset,
-                dataset_title=dataset.title,
-                algorithm=algorithm,
-                target_column=target_col,
-                parameters={**params, "layers": layers},
-                accuracy=acc,
-                error_rate=1.0 - acc,
-                sensitivity=acc * 1.05,
-                specificity=acc * 0.95,
-                confusion_matrix={
-                    "labels": ["Class A", "Class B"],
-                    "matrix": [[15, 2], [3, 18]]
-                }
-            )
-
-            return Response({
-                "model_id": trained_model.id,
-                "algorithm": algorithm,
-                "accuracy": acc,
-                "error_rate": 1.0 - acc,
-                "sensitivity": acc * 1.05,
-                "specificity": acc * 0.95,
-                "confusion_matrix": trained_model.confusion_matrix,
-                "logs": logs,
-                "layers": layers
-            }, status=status.HTTP_200_OK)
 
         # Standard Machine Learning models
         try:
