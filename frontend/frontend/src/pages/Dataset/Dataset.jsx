@@ -73,6 +73,17 @@ function DatasetPage() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
+      const fileName = selectedFile.name.toLowerCase();
+      const isCsv = fileName.endsWith(".csv");
+      const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
+      
+      if (!isCsv && !isExcel) {
+        alert("Unsupported file format! Nexora only supports CSV (.csv) and Excel (.xlsx, .xls) files.");
+        e.target.value = ""; // Clear file selector input
+        setFile(null);
+        return;
+      }
+
       setFile(selectedFile);
       if (!title) {
         setTitle(selectedFile.name);

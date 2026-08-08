@@ -17,6 +17,7 @@ function Prediction() {
   const [selectedDatasetId, setSelectedDatasetId] = useState("");
   const [columns, setColumns] = useState([]);
   const [selectedTarget, setSelectedTarget] = useState("");
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [taskType, setTaskType] = useState("regression");
   const [selectedAlgorithm, setSelectedAlgorithm] = useState("Simple Linear Regression");
   
@@ -51,9 +52,12 @@ function Prediction() {
 
     getDatasetPreview(selectedDatasetId)
       .then((data) => {
-        setColumns(data.columns || []);
-        if (data.columns && data.columns.length > 0) {
-          setSelectedTarget(data.columns[data.columns.length - 1]);
+        const cols = data.columns || [];
+        setColumns(cols);
+        if (cols.length > 0) {
+          const target = cols[cols.length - 1];
+          setSelectedTarget(target);
+          setSelectedFeatures(cols.filter((c) => c !== target));
         }
       })
       .catch((err) => console.error("Error fetching preview columns:", err));
@@ -68,9 +72,24 @@ function Prediction() {
     setParams({ ...params, [name]: val });
   };
 
+  const handleFeatureToggle = (col) => {
+    if (selectedFeatures.includes(col)) {
+      setSelectedFeatures(selectedFeatures.filter((f) => f !== col));
+    } else {
+      setSelectedFeatures([...selectedFeatures, col]);
+    }
+  };
+
   const handleTrain = async (e) => {
     e.preventDefault();
-    if (!selectedDatasetId || !selectedTarget) return;
+    if (!selectedDatasetId || !selectedTarget || !selectedAlgorithm) {
+      alert("Please select dataset, target, and algorithm.");
+      return;
+    }
+    if (selectedFeatures.length === 0) {
+      alert("Please select at least one predictor column (X) as feature.");
+      return;
+    }
 
     setLoading(true);
     setTrainingLogs([]);
@@ -79,7 +98,7 @@ function Prediction() {
     // Standard ML models
     try {
       setTrainingLogs(["Splitting dataset into train and test sets...", `Fitting ${selectedAlgorithm} model...`]);
-      const data = await trainModel(selectedDatasetId, selectedTarget, selectedAlgorithm, params);
+      const data = await trainModel(selectedDatasetId, selectedTarget, selectedAlgorithm, params, selectedFeatures);
       setTrainingLogs((prev) => [...prev, "Training Complete! Evaluating model performance."]);
       setModelResult(data);
     } catch (err) {
@@ -120,13 +139,49 @@ function Prediction() {
               <label>Target Column (y)</label>
               <select 
                 value={selectedTarget} 
-                onChange={(e) => setSelectedTarget(e.target.value)}
+                onChange={(e) => {
+                  const target = e.target.value;
+                  setSelectedTarget(target);
+                  setSelectedFeatures(columns.filter((c) => c !== target));
+                }}
                 disabled={loading || columns.length === 0}
               >
                 {columns.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
+
+              <label>Predictor Columns (X) - Features</label>
+              <div className="features-checkbox-list" style={{
+                maxHeight: "130px",
+                overflowY: "auto",
+                border: "1px solid #1a2c42",
+                borderRadius: "6px",
+                padding: "10px",
+                background: "#0c1524",
+                marginBottom: "15px"
+              }}>
+                {columns.filter((col) => col !== selectedTarget).map((col) => (
+                  <div key={col} className="feature-checkbox-item" style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "6px"
+                  }}>
+                    <input 
+                      type="checkbox" 
+                      id={`chk-${col}`}
+                      checked={selectedFeatures.includes(col)} 
+                      onChange={() => handleFeatureToggle(col)}
+                      disabled={loading}
+                    />
+                    <label htmlFor={`chk-${col}`} style={{ margin: 0, cursor: "pointer", fontSize: "14px", color: "#b9c7d9" }}>{col}</label>
+                  </div>
+                ))}
+                {columns.filter((col) => col !== selectedTarget).length === 0 && (
+                  <span className="placeholder-text" style={{ fontSize: "12px" }}>No other columns available</span>
+                )}
+              </div>
 
               <label>Task Category</label>
               <select 

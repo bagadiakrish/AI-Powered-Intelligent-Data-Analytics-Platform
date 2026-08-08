@@ -1,9 +1,10 @@
 import api from "./api";
 
-export const trainModel = async (datasetId, targetCol, algorithm, params = {}) => {
+export const trainModel = async (datasetId, targetCol, algorithm, params = {}, featureCols = []) => {
   const response = await api.post("/ml/train/", {
     dataset_id: datasetId,
     target_col: targetCol,
+    feature_cols: featureCols,
     algorithm,
     params,
   });

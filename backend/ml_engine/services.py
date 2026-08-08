@@ -12,12 +12,19 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, c
 
 class MLTrainingService:
     @staticmethod
-    def preprocess_data(df, target_col):
+    def preprocess_data(df, target_col, feature_cols=None):
         # Drop rows where target is missing
         df = df.dropna(subset=[target_col])
         
         y = df[target_col]
-        X = df.drop(columns=[target_col])
+        if feature_cols:
+            valid_features = [c for c in feature_cols if c in df.columns and c != target_col]
+            if valid_features:
+                X = df[valid_features]
+            else:
+                X = df.drop(columns=[target_col])
+        else:
+            X = df.drop(columns=[target_col])
 
         # Preprocess features (One-hot encode categorical features, fill nulls)
         X = pd.get_dummies(X, drop_first=True)
@@ -31,8 +38,8 @@ class MLTrainingService:
         return X, y
 
     @staticmethod
-    def train_regression(df, target_col, algorithm, params):
-        X, y = MLTrainingService.preprocess_data(df, target_col)
+    def train_regression(df, target_col, algorithm, params, feature_cols=None):
+        X, y = MLTrainingService.preprocess_data(df, target_col, feature_cols)
         
         # Convert target to numeric if possible
         y = pd.to_numeric(y, errors="coerce")
@@ -89,8 +96,8 @@ class MLTrainingService:
         }
 
     @staticmethod
-    def train_classification(df, target_col, algorithm, params):
-        X, y = MLTrainingService.preprocess_data(df, target_col)
+    def train_classification(df, target_col, algorithm, params, feature_cols=None):
+        X, y = MLTrainingService.preprocess_data(df, target_col, feature_cols)
         
         # Convert target to string categories/integers
         y = y.astype(str)

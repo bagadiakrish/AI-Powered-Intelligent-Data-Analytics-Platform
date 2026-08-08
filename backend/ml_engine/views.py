@@ -14,6 +14,7 @@ class TrainModelView(APIView):
     def post(self, request):
         dataset_id = request.data.get("dataset_id")
         target_col = request.data.get("target_col")
+        feature_cols = request.data.get("feature_cols", [])
         algorithm = request.data.get("algorithm")
         params = request.data.get("params", {})
 
@@ -35,7 +36,7 @@ class TrainModelView(APIView):
             classification_algs = ["kNN", "Decision Tree", "Random Forest", "SVM"]
 
             if algorithm in regression_algs:
-                results = MLTrainingService.train_regression(df, target_col, algorithm, params)
+                results = MLTrainingService.train_regression(df, target_col, algorithm, params, feature_cols)
                 trained_model = TrainedModel.objects.create(
                     user=request.user,
                     dataset=dataset,
@@ -58,7 +59,7 @@ class TrainModelView(APIView):
                 }, status=status.HTTP_200_OK)
 
             elif algorithm in classification_algs:
-                results = MLTrainingService.train_classification(df, target_col, algorithm, params)
+                results = MLTrainingService.train_classification(df, target_col, algorithm, params, feature_cols)
                 trained_model = TrainedModel.objects.create(
                     user=request.user,
                     dataset=dataset,
